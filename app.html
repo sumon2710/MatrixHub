@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MatrixHub — Modern Matrix Calculator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg1:#0f172a;
+      --bg2:#0ea5e9;
+      --card:#0b1220;
+      --accent:#7c3aed;
+      --glass: rgba(255,255,255,0.04);
+      --muted: rgba(255,255,255,0.85);
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      font-family:'Poppins',sans-serif;
+      margin:0;
+      min-height:100vh;
+      background:radial-gradient(1200px 600px at 10% 10%, rgba(124,58,237,0.12), transparent 10%), linear-gradient(120deg,var(--bg1), #04273b 60%);
+      color:var(--muted);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:30px;
+    }
+
+    .app{ width:100%; max-width:1100px; }
+
+    header{
+      display:flex;
+      align-items:center;
+      gap:18px;
+      margin-bottom:18px;
+    }
+
+    .logo{
+      width:64px;height:64px;border-radius:14px;
+      background:linear-gradient(135deg,var(--accent),var(--bg2));
+      display:flex;align-items:center;justify-content:center;font-weight:700;font-size:22px;color:white;
+      box-shadow:0 8px 30px rgba(2,6,23,0.7)
+    }
+    h1{font-size:20px;margin:0}
+    p.lead{margin:0;color:rgba(255,255,255,0.75)}
+
+    .grid{display:grid;grid-template-columns:420px 1fr;gap:20px}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:14px;padding:18px;box-shadow:0 6px 28px rgba(2,6,23,0.6);}
+
+    label{display:block;font-size:13px;color:rgba(255,255,255,0.9);margin-bottom:6px}
+    input[type=number], select{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--muted);outline:none}
+    .row{display:flex;gap:10px;margin-bottom:10px}
+    .small{flex:1}
+    .controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+    button.btn{background:linear-gradient(90deg,var(--accent),#06b6d4);border:none;color:white;padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:600;box-shadow:0 8px 24px rgba(12,17,24,0.5);}
+    button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);padding:10px;border-radius:10px}
+
+    .matrix-area{display:flex;gap:12px;flex-direction:column}
+    .matrix-box{background:var(--glass);padding:12px;border-radius:10px}
+    table.matrix{border-collapse:collapse}
+    table.matrix td{padding:4px}
+    table.matrix input{width:70px;padding:6px;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--muted);text-align:center}
+
+    .result-card{display:flex;flex-direction:column;gap:12px}
+    .result-display{background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));padding:18px;border-radius:12px;min-height:140px}
+    .result-display table{margin:auto;border-collapse:collapse}
+    .result-display td{padding:6px 10px;border:1px solid rgba(255,255,255,0.04);text-align:center}
+    .note{font-size:13px;color:rgba(255,255,255,0.6)}
+
+    .ops{display:flex;flex-wrap:wrap;gap:8px}
+    .ops button{padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:var(--muted);cursor:pointer}
+    footer{margin-top:14px;color:rgba(255,255,255,0.5);font-size:13px}
+
+    .highlight{outline:2px solid rgba(124,58,237,0.45);}
+
+    /* footer styling (main, not only media) */
+    .footer {
+      text-align: center;
+      padding: 15px;
+      font-size: 1rem;
+      background: linear-gradient(135deg, #3a0ca3, #4361ee);
+      color: white;
+      border-radius: 20px 20px 0 0;
+      margin-top: 30px;
+    }
+    .heart { color: red; animation: pulse 1s infinite; }
+    @keyframes pulse { 0%,100%{ transform:scale(1);} 50%{ transform:scale(1.2);} }
+
+    @media(max-width:980px){
+      .grid{grid-template-columns:1fr;}
+      .logo{display:none;}
+      table.matrix input{width:56px;}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="logo">M✔H</div>
+      <div>
+        <h1>MatrixHub — Modern Matrix Calculator</h1>
+        <p class="lead">All common matrix operations + download result as PDF or PNG — All-in-one Matrix Operation Platform.</p>
+      </div>
+    </header>
+
+    <div class="grid">
+      <div class="card">
+        <label>Matrix size (max 6×6)</label>
+        <div class="row">
+          <div class="small">
+            <label>Rows</label>
+            <input id="rows" type="number" min="1" max="6" value="3">
+          </div>
+          <div class="small">
+            <label>Columns</label>
+            <input id="cols" type="number" min="1" max="6" value="3">
+          </div>
+        </div>
+        <div class="controls">
+          <button class="btn" id="generateBtn">Generate Matrices</button>
+          <button class="ghost" id="fillRandom">Fill Random</button>
+          <button class="ghost" id="clearBtn">Clear</button>
+        </div>
+
+        <hr style="border:none;height:12px">
+
+        <div class="matrix-area">
+          <div>
+            <label>Matrix A</label>
+            <div id="matrixA" class="matrix-box"></div>
+          </div>
+          <div>
+            <label>Matrix B</label>
+            <div id="matrixB" class="matrix-box"></div>
+          </div>
+        </div>
+
+        <hr style="border:none;height:12px">
+        <label>Choose Operation (click to select)</label>
+        <div class="ops" id="opButtons"></div>
+
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+          <button class="btn" id="calculate">Calculate</button>
+          <button class="ghost" id="showSteps">Toggle Steps</button>
+          <button class="ghost" id="swapAB">Swap A ⇄ B</button>
+        </div>
+      </div>
+
+      <div class="card result-card">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <label>Result</label>
+            <div class="note">Result matrix, numeric values rounded to 6 decimals. Steps (if any) shown below.</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn" id="downloadPdf">Download PDF</button>
+            <button class="btn" id="downloadPng">Download PNG</button>
+          </div>
+        </div>
+
+        <div id="resultArea" class="result-display"></div>
+        <div id="steps" class="note" style="white-space:pre-wrap;display:none;max-height:260px;overflow:auto;margin-top:8px;padding:8px;background:rgba(255,255,255,0.02);border-radius:8px"></div>
+        <footer>Tip: Determinant and inverse are calculated for square matrices only. Rank uses row reduction.</footer>
+      </div>
+    </div>
+
+    <footer class="footer">
+      Made with <span class="heart">❤️</span> by <strong>Sumon</strong>
+    </footer>
+  </div>
+
+  <!-- Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <script>
+    // ----------------- Configuration -----------------
+    const ops = [
+      {id:'add', label:'A + B'},
+      {id:'subtract', label:'A - B'},
+      {id:'multiply', label:'A × B'},
+      {id:'scalarMul', label:'Scalar × A'},
+      {id:'transposeA', label:'Aᵀ'},
+      {id:'transposeB', label:'Bᵀ'},
+      {id:'detA', label:'det(A)'},
+      {id:'detB', label:'det(B)'},
+      {id:'invA', label:'A⁻¹'},
+      {id:'invB', label:'B⁻¹'},
+      {id:'rankA', label:'rank(A)'},
+      {id:'rankB', label:'rank(B)'}
+    ];
+
+    // branding (update path if you store logo elsewhere)
+    const logoUrl = './logo.png'; // <-- correct string
+    const siteName = 'MatrixHub - Smart Matrix Calculator';
+
+    let state = {rows:3, cols:3, operation:'add', showSteps:false, scalar:1};
+
+    const $ = s=>document.querySelector(s);
+    const $all = s=>Array.from(document.querySelectorAll(s));
+
+    // ----------------- UI Setup -----------------
+    const opButtons = $('#opButtons');
+    ops.forEach(o=>{
+      const b = document.createElement('button');
+      b.textContent = o.label; b.dataset.op = o.id; b.className='op-btn';
+      b.addEventListener('click', ()=>{ state.operation = o.id; highlightOp(o.id); if(o.id==='scalarMul') askScalar(); });
+      opButtons.appendChild(b);
+    });
+    function highlightOp(id){ $all('#opButtons button').forEach(btn=>btn.classList.toggle('highlight', btn.dataset.op===id)); }
+    highlightOp('add');
+
+    function askScalar(){
+      const val = prompt('Enter scalar value to multiply with (A):', '2');
+      if(val!==null){ const n = parseFloat(val); if(!isNaN(n)) state.scalar = n; else alert('Invalid number'); }
+    }
+
+    // ----------------- Matrix DOM -----------------
+    function createMatrixDOM(name, rows, cols){
+      const box = document.getElementById('matrix'+name);
+      box.innerHTML = '';
+      const tbl = document.createElement('table'); tbl.className='matrix';
+      for(let i=0;i<rows;i++){
+        const tr = document.createElement('tr');
+        for(let j=0;j<cols;j++){
+          const td = document.createElement('td');
+          const inp = document.createElement('input'); inp.type='number'; inp.step='any'; inp.value = '0'; inp.id = `${name}_${i}_${j}`;
+          td.appendChild(inp); tr.appendChild(td);
+        }
+        tbl.appendChild(tr);
+      }
+      box.appendChild(tbl);
+    }
+
+    function readMatrix(name){
+      const r = parseInt($('#rows').value), c = parseInt($('#cols').value);
+      const M = Array.from({length:r}, ()=>Array(c).fill(0));
+      for(let i=0;i<r;i++) for(let j=0;j<c;j++){
+        const el = document.getElementById(`${name}_${i}_${j}`);
+        const v = parseFloat(el.value);
+        M[i][j] = Number.isFinite(v)? v: 0;
+      }
+      return M;
+    }
+
+    function displayMatrixArea(M){
+      const area = $('#resultArea'); area.innerHTML='';
+      if(typeof M === 'string' || M === null){ area.textContent = String(M); return; }
+      if(!Array.isArray(M) || !Array.isArray(M[0])){ area.textContent = String(M); return; }
+      const tbl = document.createElement('table');
+      M.forEach(row=>{
+        const tr = document.createElement('tr');
+        row.forEach(v=>{ const td = document.createElement('td'); td.textContent = Number.isFinite(v)? Number(parseFloat(v).toFixed(6)): v; tr.appendChild(td); });
+        tbl.appendChild(tr);
+      });
+      area.appendChild(tbl);
+    }
+
+    // ----------------- Math Utilities -----------------
+    function clone(A){ return A.map(r=>r.slice()); }
+    function isSquare(A){ return A.length === A[0].length; }
+
+    function add(A,B){ if(A.length!==B.length || A[0].length!==B[0].length) throw 'Dimension mismatch'; return A.map((r,i)=>r.map((v,j)=>v + B[i][j])); }
+    function subtract(A,B){ if(A.length!==B.length || A[0].length!==B[0].length) throw 'Dimension mismatch'; return A.map((r,i)=>r.map((v,j)=>v - B[i][j])); }
+    function multiply(A,B){ if(A[0].length!==B.length) throw 'Dimension mismatch'; const r=A.length, c=B[0].length, p=A[0].length; const R=Array.from({length:r}, ()=>Array(c).fill(0)); for(let i=0;i<r;i++) for(let j=0;j<c;j++) for(let k=0;k<p;k++) R[i][j]+=A[i][k]*B[k][j]; return R; }
+    function scalarMultiply(A,k){ return A.map(r=>r.map(v=>v*k)); }
+    function transpose(A){ return A[0].map((_,i)=>A.map(r=>r[i])); }
+
+    function gaussJordan(A, augment){
+      const n = A.length; const EPS=1e-12;
+      let M = clone(A);
+      let Aug = augment? clone(augment): null;
+      const steps=[];
+
+      let row=0;
+      for(let col=0; col<n && row<n; col++){
+        let sel = row; for(let i=row;i<n;i++) if(Math.abs(M[i][col])>Math.abs(M[sel][col])) sel=i;
+        if(Math.abs(M[sel][col])<EPS) continue;
+        if(sel!==row){ [M[sel], M[row]] = [M[row], M[sel]]; if(Aug) [Aug[sel], Aug[row]]=[Aug[row], Aug[sel]]; steps.push(`Swap row ${sel+1} and ${row+1}`); }
+        const inv = 1/M[row][col];
+        M[row] = M[row].map(v=>v*inv);
+        if(Aug) Aug[row] = Aug[row].map(v=>v*inv);
+        steps.push(`Normalize row ${row+1} by dividing by ${ (1/inv).toFixed(6) }`);
+        for(let i=0;i<n;i++) if(i!==row){
+          const factor = M[i][col];
+          if(Math.abs(factor) > EPS){
+            for(let j=col;j<n;j++) M[i][j] -= factor * M[row][j];
+            if(Aug) for(let j=0;j<Aug[0].length;j++) Aug[i][j] -= factor * Aug[row][j];
+            steps.push(`R${i+1} = R${i+1} - (${factor.toFixed(6)}) * R${row+1}`);
+          }
+        }
+        row++;
+      }
+      return {reduced:M, augment:Aug, steps};
+    }
+
+    function determinant(A){
+      if(!isSquare(A)) throw 'Determinant requires square matrix';
+      const n=A.length; const M = clone(A); let det = 1; const EPS=1e-12;
+      for(let i=0;i<n;i++){
+        let pivot = i; for(let r=i;r<n;r++) if(Math.abs(M[r][i])>Math.abs(M[pivot][i])) pivot = r;
+        if(Math.abs(M[pivot][i])<EPS) return 0;
+        if(pivot !== i){ [M[pivot], M[i]]=[M[i], M[pivot]]; det *= -1; }
+        det *= M[i][i];
+        const div = M[i][i]; for(let j=i;j<n;j++) M[i][j] /= div;
+        for(let r=i+1;r<n;r++){ const factor = M[r][i]; for(let c=i;c<n;c++) M[r][c] -= factor * M[i][c]; }
+      }
+      return det;
+    }
+
+    function inverseWithSteps(A){ if(!isSquare(A)) throw 'Inverse requires square matrix'; const n=A.length; const I = Array.from({length:n}, (_,i)=>Array.from({length:n}, (_,j)=> i===j?1:0)); const res = gaussJordan(A, I);
+      // check singular
+      for(let i=0;i<n;i++) for(let j=0;j<n;j++) if(i===j){ if(Math.abs(res.reduced[i][j]-1)>1e-8) throw 'Matrix is singular'; } else { if(Math.abs(res.reduced[i][j])>1e-8) throw 'Matrix is singular'; }
+      return {inv: res.augment, steps: res.steps};
+    }
+
+    function computeRank(A){ const n=A.length,m=A[0].length; let M=clone(A); const EPS=1e-12; let rank=0; let row=0;
+      for(let col=0;col<m && row<n;col++){
+        let sel = row; for(let i=row;i<n;i++) if(Math.abs(M[i][col])>Math.abs(M[sel][col])) sel=i;
+        if(Math.abs(M[sel][col])<EPS) continue;
+        [M[sel], M[row]]=[M[row], M[sel]];
+        const inv = 1/M[row][col]; for(let j=col;j<m;j++) M[row][j]*=inv;
+        for(let i=0;i<n;i++) if(i!==row){ const factor=M[i][col]; for(let j=col;j<m;j++) M[i][j]-=factor*M[row][j]; }
+        row++; rank++;
+      }
+      return rank;
+    }
+
+    // ----------------- Button actions -----------------
+    function generate(){ const r = Math.max(1, Math.min(6, parseInt($('#rows').value||3))); const c = Math.max(1, Math.min(6, parseInt($('#cols').value||3))); $('#rows').value=r; $('#cols').value=c; createMatrixDOM('A',r,c); createMatrixDOM('B',r,c); }
+    function clear(){ createMatrixDOM('A', parseInt($('#rows').value), parseInt($('#cols').value)); createMatrixDOM('B', parseInt($('#rows').value), parseInt($('#cols').value)); $('#resultArea').innerHTML=''; $('#steps').style.display='none'; $('#steps').textContent=''; }
+    function fillRandom(){ const r=parseInt($('#rows').value), c=parseInt($('#cols').value); for(let i=0;i<r;i++) for(let j=0;j<c;j++){ document.getElementById(`A_${i}_${j}`).value = (Math.random()*20-10).toFixed(2); document.getElementById(`B_${i}_${j}`).value = (Math.random()*20-10).toFixed(2); } }
+    function swapAB(){ const r=parseInt($('#rows').value), c=parseInt($('#cols').value); for(let i=0;i<r;i++) for(let j=0;j<c;j++){ const a = document.getElementById(`A_${i}_${j}`).value; const b = document.getElementById(`B_${i}_${j}`).value; document.getElementById(`A_${i}_${j}`).value = b; document.getElementById(`B_${i}_${j}`).value = a; } }
+
+    async function calculate(){ try{
+        const A = readMatrix('A'); const B = readMatrix('B'); let res=null; let stepsText='';
+        switch(state.operation){
+          case 'add': res = add(A,B); break;
+          case 'subtract': res = subtract(A,B); break;
+          case 'multiply': res = multiply(A,B); break;
+          case 'scalarMul': res = scalarMultiply(A, state.scalar); stepsText = `Scalar multiply A by ${state.scalar}`; break;
+          case 'transposeA': res = transpose(A); break;
+          case 'transposeB': res = transpose(B); break;
+          case 'detA': { const d = determinant(A); res = [[d]]; stepsText = `determinant(A) = ${d}`; } break;
+          case 'detB': { const d = determinant(B); res = [[d]]; stepsText = `determinant(B) = ${d}`; } break;
+          case 'invA': { const invRes = inverseWithSteps(A); res = invRes.inv; stepsText = invRes.steps.join('\n'); } break;
+          case 'invB': { const invRes = inverseWithSteps(B); res = invRes.inv; stepsText = invRes.steps.join('\n'); } break;
+          case 'rankA': { const rk = computeRank(A); res = [[rk]]; stepsText = `rank(A) = ${rk}`; } break;
+          case 'rankB': { const rk = computeRank(B); res = [[rk]]; stepsText = `rank(B) = ${rk}`; } break;
+          default: throw 'Operation not supported';
+        }
+        displayMatrixArea(res);
+        if(state.showSteps && stepsText){ $('#steps').style.display='block'; $('#steps').textContent = stepsText; }
+        else if(state.showSteps && !stepsText){ $('#steps').style.display='block'; $('#steps').textContent = 'No detailed steps available for this operation.'; }
+        else { $('#steps').style.display='none'; }
+      } catch(err){ alert('Error: ' + err); }
+    }
+
+    // ----------------- Download result -----------------
+    async function downloadPNG(){
+      const el = document.getElementById('resultArea');
+      // include steps area too if visible by rendering a temporary wrapper (to match PDF behavior)
+      const wrapper = document.createElement('div');
+      wrapper.style.background = '#ffffff';
+      wrapper.style.padding = '20px';
+      wrapper.style.color = '#000';
+      wrapper.style.display = 'inline-block';
+      wrapper.innerHTML = `<div style="font-family:Arial,Helvetica,sans-serif;margin-bottom:12px;"><strong>${siteName}</strong></div>`;
+      // logo (try to include remotely, but if CORS blocks it, the image may not show)
+      wrapper.innerHTML += `<div>${el.outerHTML}</div>`;
+      if (state.showSteps && $('#steps').style.display === 'block') wrapper.innerHTML += `<div style="margin-top:12px;font-family:monospace;white-space:pre-wrap;">${$('#steps').textContent}</div>`;
+
+      document.body.appendChild(wrapper);
+      const canvas = await html2canvas(wrapper, {backgroundColor: '#ffffff', scale: 2});
+      const data = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.download = 'matrix_result.png';
+      link.href = data;
+      link.click();
+      document.body.removeChild(wrapper);
+    }
+
+    async function downloadPDF() {
+      const el = document.getElementById('resultArea');
+      const { jsPDF } = window.jspdf;
+
+      // Build a temporary container that includes header (logo + sitename), result, steps and footer.
+      const container = document.createElement('div');
+      container.style.background = '#ffffff';
+      container.style.padding = '20px';
+      container.style.color = '#000';
+      container.style.width = 'fit-content';
+      container.style.fontFamily = 'Arial, Helvetica, sans-serif';
+      // header HTML (logo left, name right)
+      const headerHTML = `
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+          <img src="${logoUrl}" alt="logo" style="height:48px;width:48px;object-fit:contain;" onerror="this.style.display='none'">
+          <div style="font-size:18px;font-weight:700;color:#222">${siteName}</div>
+        </div>
+      `;
+      container.innerHTML = headerHTML;
+      container.innerHTML += `<div style="background:#fff;padding:10px;border-radius:6px;">${el.outerHTML}</div>`;
+
+      if (state.showSteps && $('#steps').style.display === 'block') {
+        container.innerHTML += `<div style="margin-top:12px;font-family:monospace;white-space:pre-wrap;color:#333;">${$('#steps').textContent}</div>`;
+      }
+      container.innerHTML += `<div style="margin-top:18px;font-size:12px;color:#666;">Generated on: ${new Date().toLocaleString()}</div>`;
+      container.innerHTML += `<div style="margin-top:8px;font-size:13px;color:#444;">Made with ♥ by Sumon</div>`;
+
+      // Append temporarily to DOM (offscreen)
+      container.style.position = 'fixed';
+      container.style.left = '-9999px';
+      document.body.appendChild(container);
+
+      // Render to canvas
+      const canvas = await html2canvas(container, {backgroundColor: '#ffffff', scale: 2});
+      const imgData = canvas.toDataURL('image/png');
+
+      // Prepare PDF sized to content
+      const pdfOrientation = canvas.width > canvas.height ? 'landscape' : 'portrait';
+      const pdf = new jsPDF({
+        orientation: pdfOrientation,
+        unit: 'px',
+        format: [canvas.width, canvas.height]
+      });
+
+      // Add the big image of the captured container
+      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+
+      // Save
+      pdf.save('matrix_result.pdf');
+
+      // cleanup
+      document.body.removeChild(container);
+    }
+
+    // ----------------- Events -----------------
+    document.getElementById('generateBtn').addEventListener('click', generate);
+    document.getElementById('clearBtn').addEventListener('click', clear);
+    document.getElementById('fillRandom').addEventListener('click', fillRandom);
+    document.getElementById('swapAB').addEventListener('click', swapAB);
+    document.getElementById('calculate').addEventListener('click', calculate);
+    document.getElementById('showSteps').addEventListener('click', ()=>{ state.showSteps = !state.showSteps; $('#steps').style.display = state.showSteps ? 'block':'none'; });
+    document.getElementById('downloadPng').addEventListener('click', downloadPNG);
+    document.getElementById('downloadPdf').addEventListener('click', downloadPDF);
+
+    // initialize
+    generate();
+  </script>
+</body>
+</html>
